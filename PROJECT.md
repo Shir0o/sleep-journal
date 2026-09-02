@@ -2,7 +2,6 @@
 
 <!-- Repo-specific agent instructions. The rollout script never touches this file. -->
 
-
 <!-- ── Migrated from GEMINI.md ── -->
 
 # Sleeplab Journal: Engineering Standards
