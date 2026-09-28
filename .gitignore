@@ -53,3 +53,9 @@ app.*.map.json
 google-services.json
 GoogleService-Info.plist
 
+
+# Release keystore & credentials
+key.properties
+android/key.properties
+android/key.properties.example
+fastlane/play-supply-credentials.json
