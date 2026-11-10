@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../theme.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -11,14 +10,21 @@ class SettingsScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'SETTINGS',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
+          Text('SETTINGS', style: Theme.of(context).textTheme.headlineMedium),
           const SizedBox(height: 48),
           _buildSectionHeader(context, 'INTEGRATIONS'),
-          _buildSettingsItem(context, 'Oura Ring', status: 'Connected', isConnected: true),
-          _buildSettingsItem(context, 'Apple Health', status: 'Disconnected', isConnected: false),
+          _buildSettingsItem(
+            context,
+            'Oura Ring',
+            status: 'Connected',
+            isConnected: true,
+          ),
+          _buildSettingsItem(
+            context,
+            'Apple Health',
+            status: 'Disconnected',
+            isConnected: false,
+          ),
           const SizedBox(height: 48),
           _buildSectionHeader(context, 'PREFERENCES'),
           _buildSettingsItem(context, 'Notifications'),
@@ -30,7 +36,7 @@ class SettingsScreen extends StatelessWidget {
               child: Text(
                 'Log Out',
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: AppTheme.tertiary,
+                  color: Theme.of(context).colorScheme.tertiary,
                   letterSpacing: 1.5,
                 ),
               ),
@@ -46,39 +52,47 @@ class SettingsScreen extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 24),
       child: Text(
         title,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          letterSpacing: 1.5,
-        ),
+        style: Theme.of(
+          context,
+        ).textTheme.labelSmall?.copyWith(letterSpacing: 1.5),
       ),
     );
   }
 
-  Widget _buildSettingsItem(BuildContext context, String title, {String? status, bool? isConnected}) {
+  Widget _buildSettingsItem(
+    BuildContext context,
+    String title, {
+    String? status,
+    bool? isConnected,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Column(
         children: [
           Row(
             children: [
-              Text(
-                title,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
+              Text(title, style: Theme.of(context).textTheme.bodyMedium),
               const Spacer(),
               if (status != null) ...[
                 Text(
                   status,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: isConnected == true ? AppTheme.primary : AppTheme.onSurfaceMuted,
+                    color: isConnected == true
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(width: 8),
               ],
-              const Icon(Icons.chevron_right, color: AppTheme.onSurfaceMuted, size: 20),
+              Icon(
+                Icons.chevron_right,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                size: 20,
+              ),
             ],
           ),
           const SizedBox(height: 16),
-          Divider(color: Colors.white.withValues(alpha: 0.05)),
+          Divider(color: Theme.of(context).dividerColor),
         ],
       ),
     );
