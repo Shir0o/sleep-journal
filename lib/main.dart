@@ -16,7 +16,9 @@ class SleeplabApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Sleeplab Journal',
-      theme: AppTheme.darkTheme,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
       home: const MainScreen(),
       debugShowCheckedModeBanner: false,
     );
@@ -49,7 +51,7 @@ class _MainScreenState extends State<MainScreen> {
           child: SvgPicture.asset(
             'assets/logo.svg',
             // ignore: deprecated_member_use
-            color: AppTheme.primary,
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
         title: Text(
@@ -57,20 +59,22 @@ class _MainScreenState extends State<MainScreen> {
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
             letterSpacing: 2.0,
             fontWeight: FontWeight.bold,
-            color: AppTheme.onSurface,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.calendar_today, size: 20, color: AppTheme.onSurfaceMuted),
+            tooltip: 'Calendar',
+            icon: Icon(
+              Icons.calendar_today,
+              size: 20,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
             onPressed: () {},
           ),
         ],
       ),
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _screens,
-      ),
+      body: IndexedStack(index: _selectedIndex, children: _screens),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) {
@@ -89,10 +93,7 @@ class _MainScreenState extends State<MainScreen> {
             activeIcon: Icon(Icons.add_circle),
             label: 'Log',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.timeline),
-            label: 'History',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.timeline), label: 'History'),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings_outlined),
             activeIcon: Icon(Icons.settings),

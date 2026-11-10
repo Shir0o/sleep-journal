@@ -36,6 +36,9 @@ migrate_working_dir/
 # Symbolication related
 app.*.symbols
 
+# Golden test images (macOS raster, regenerated locally with --update-goldens)
+/test/goldens/
+
 # Obfuscation related
 app.*.map.json
 

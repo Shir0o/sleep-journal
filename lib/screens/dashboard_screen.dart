@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../theme.dart';
 import '../widgets/circular_visualizer.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -14,9 +13,9 @@ class DashboardScreen extends StatelessWidget {
         children: [
           Text(
             'THURSDAY, OCT 12',
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              letterSpacing: 2.0,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelSmall?.copyWith(letterSpacing: 2.0),
           ),
           const SizedBox(height: 48),
           const CircularVisualizer(
@@ -31,14 +30,11 @@ class DashboardScreen extends StatelessWidget {
               Text(
                 '91',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: AppTheme.tertiary,
+                  color: Theme.of(context).colorScheme.tertiary,
                 ),
               ),
               const SizedBox(width: 8),
-              Text(
-                'STABILITY',
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
+              Text('STABILITY', style: Theme.of(context).textTheme.labelSmall),
             ],
           ),
           const SizedBox(height: 48),
@@ -51,24 +47,25 @@ class DashboardScreen extends StatelessWidget {
   }
 
   Widget _buildInsightCard(BuildContext context) {
+    final ColorScheme colors = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
+        border: Border.all(color: colors.primary.withValues(alpha: 0.2)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.auto_awesome, color: AppTheme.secondary, size: 20),
+          Icon(Icons.auto_awesome, color: colors.secondary, size: 20),
           const SizedBox(width: 16),
           Expanded(
             child: Text(
               'Your deep sleep was restored tonight, likely aided by finishing dinner 3 hours before bed.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                height: 1.5,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(height: 1.5),
             ),
           ),
         ],
@@ -82,41 +79,52 @@ class DashboardScreen extends StatelessWidget {
       children: [
         Text(
           'LIFESTYLE CORRELATIONS',
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            letterSpacing: 1.5,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.labelSmall?.copyWith(letterSpacing: 1.5),
         ),
         const SizedBox(height: 24),
         _buildCorrelationItem(context, Icons.devices, 'Screen Time', '< 1h'),
         _buildCorrelationItem(context, Icons.medication, 'Magnesium', 'Taken'),
-        _buildCorrelationItem(context, Icons.local_cafe, 'Late Caffeine', 'None'),
+        _buildCorrelationItem(
+          context,
+          Icons.local_cafe,
+          'Late Caffeine',
+          'None',
+        ),
         const SizedBox(height: 16),
         Center(
           child: IconButton(
+            tooltip: 'Add correlation',
             onPressed: () {},
-            icon: const Icon(Icons.add, color: AppTheme.onSurfaceMuted),
+            icon: Icon(
+              Icons.add,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildCorrelationItem(BuildContext context, IconData icon, String label, String value) {
+  Widget _buildCorrelationItem(
+    BuildContext context,
+    IconData icon,
+    String label,
+    String value,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: [
-          Icon(icon, color: AppTheme.primary, size: 20),
+          Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
           const SizedBox(width: 16),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
+          Text(label, style: Theme.of(context).textTheme.bodyMedium),
           const Spacer(),
           Text(
             value,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: AppTheme.onSurface,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ],
