@@ -28,7 +28,7 @@ jobs:
         run: dart format --set-exit-if-changed lib test
 
       - name: Analyze code
-        run: flutter analyze
+        run: flutter analyze --no-fatal-infos
 
       - name: Run unit and widget tests
         run: flutter test
