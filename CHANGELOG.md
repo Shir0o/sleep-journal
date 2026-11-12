@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/Shir0o/sleep-journal/compare/v0.1.1...v0.1.2) (2026-11-12)
+
+
+### Bug Fixes
+
+* **ui:** harmonize bottom navigation bar typography with DM Sans ([#16](https://github.com/Shir0o/sleep-journal/issues/16)) ([3c8f0f0](https://github.com/Shir0o/sleep-journal/commit/3c8f0f02119cc93e27dd7ce9cc2cc97bb8ab37fe))
+
 ## [0.1.1](https://github.com/Shir0o/sleep-journal/compare/v0.1.0...v0.1.1) (2026-11-10)
 
 
