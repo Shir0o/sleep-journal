@@ -83,12 +83,20 @@ class AppTheme {
         onSurface: onSurface,
         onSurfaceMuted: onSurfaceMuted,
       ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: background,
         selectedItemColor: primary,
         unselectedItemColor: onSurfaceMuted,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
+        selectedLabelStyle: GoogleFonts.dmSans(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
+        unselectedLabelStyle: GoogleFonts.dmSans(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: background,
@@ -116,12 +124,20 @@ class AppTheme {
         onSurface: lightOnSurface,
         onSurfaceMuted: lightOnSurfaceMuted,
       ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: lightBackground,
         selectedItemColor: lightPrimary,
         unselectedItemColor: lightOnSurfaceMuted,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
+        selectedLabelStyle: GoogleFonts.dmSans(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
+        unselectedLabelStyle: GoogleFonts.dmSans(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: lightBackground,
