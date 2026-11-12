@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/Shir0o/sleep-journal/compare/v0.1.2...v0.1.3) (2026-11-12)
+
+
+### Bug Fixes
+
+* **ui:** refine dashboard spacing, alignment, and actions ([#18](https://github.com/Shir0o/sleep-journal/issues/18)) ([985887e](https://github.com/Shir0o/sleep-journal/commit/985887eeb5569ac8c13eebd32bed8b4f31f46379))
+
 ## [0.1.2](https://github.com/Shir0o/sleep-journal/compare/v0.1.1...v0.1.2) (2026-11-12)
 
 
