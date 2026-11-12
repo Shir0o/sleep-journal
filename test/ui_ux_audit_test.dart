@@ -66,6 +66,10 @@ final List<_AuditVariant> _variants = <_AuditVariant>[
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  // Themes below are built at first access, outside any test's zone; without
+  // this, google_fonts tries to resolve an invoker and throws
+  // "Bad state: There is no current invoker" while constructing AppTheme.
+  GoogleFonts.config.allowRuntimeFetching = false;
 
   // Fonts must be re-registered per test: the binding resets the font
   // collection between tests.

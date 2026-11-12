@@ -17,15 +17,17 @@ class DashboardScreen extends StatelessWidget {
               context,
             ).textTheme.labelSmall?.copyWith(letterSpacing: 2.0),
           ),
-          const SizedBox(height: 48),
+          const SizedBox(height: 24),
           const CircularVisualizer(
             score: 84,
             label: 'SLEEP SCORE',
             value: '84',
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
             children: [
               Text(
                 '91',
@@ -37,9 +39,9 @@ class DashboardScreen extends StatelessWidget {
               Text('STABILITY', style: Theme.of(context).textTheme.labelSmall),
             ],
           ),
-          const SizedBox(height: 48),
+          const SizedBox(height: 24),
           _buildInsightCard(context),
-          const SizedBox(height: 48),
+          const SizedBox(height: 24),
           _buildLifestyleCorrelations(context),
         ],
       ),
@@ -77,11 +79,26 @@ class DashboardScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'LIFESTYLE CORRELATIONS',
-          style: Theme.of(
-            context,
-          ).textTheme.labelSmall?.copyWith(letterSpacing: 1.5),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'LIFESTYLE CORRELATIONS',
+                style: Theme.of(
+                  context,
+                ).textTheme.labelSmall?.copyWith(letterSpacing: 1.5),
+              ),
+            ),
+            IconButton(
+              tooltip: 'Add correlation',
+              onPressed: () {},
+              icon: Icon(
+                Icons.add_circle_outline,
+                size: 20,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 24),
         _buildCorrelationItem(context, Icons.devices, 'Screen Time', '< 1h'),
@@ -91,17 +108,6 @@ class DashboardScreen extends StatelessWidget {
           Icons.local_cafe,
           'Late Caffeine',
           'None',
-        ),
-        const SizedBox(height: 16),
-        Center(
-          child: IconButton(
-            tooltip: 'Add correlation',
-            onPressed: () {},
-            icon: Icon(
-              Icons.add,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
         ),
       ],
     );
@@ -114,7 +120,7 @@ class DashboardScreen extends StatelessWidget {
     String value,
   ) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
           Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
