@@ -203,6 +203,8 @@ Set<String> _fontFamiliesUsedByTheme() {
     textTheme.labelLarge,
     textTheme.labelMedium,
     textTheme.labelSmall,
+    _variants.first.theme.bottomNavigationBarTheme.selectedLabelStyle,
+    _variants.first.theme.bottomNavigationBarTheme.unselectedLabelStyle,
   ];
 
   final Set<String> families = <String>{'Roboto'};
