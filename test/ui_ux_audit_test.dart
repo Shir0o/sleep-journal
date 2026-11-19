@@ -1,12 +1,17 @@
 // UI/UX audit across viewport and text-scale variants.
 //
-// Each variant pumps the app's main screen at a fixed logical size with a fixed
-// text scale, then asserts:
-//   * no RenderFlex overflow,
-//   * every tap target meets the Android 48dp guideline,
-//   * a secondary navigation tab can be tapped without regressing the above.
+// For each variant (and each of the app's primary destinations) the audit:
+//   * pumps [MainScreen] at a fixed logical size and text scale,
+//   * taps through every primary navigation destination and every visible
+//     action, proving that none of them opens a dialog, bottom sheet or other
+//     modal route today,
+//   * asserts zero RenderFlex overflow,
+//   * asserts every tap target meets the Android 48dp guideline,
+//   * asserts rendered text contrast (host-dependent; see the note below).
 //
-// Token contrast is verified deterministically in test/theme_contrast_test.dart.
+// Token contrast is also verified deterministically in
+// test/theme_contrast_test.dart, and that file remains the source of truth for
+// colour regressions.
 //
 // Goldens are written only under `flutter test --update-goldens`
 // (autoUpdateGoldenFiles) so a macOS raster stays local and Linux CI does not
@@ -20,6 +25,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sleep_journal/main.dart';
+import 'package:sleep_journal/screens/dashboard_screen.dart';
+import 'package:sleep_journal/screens/history_screen.dart';
+import 'package:sleep_journal/screens/settings_screen.dart';
 import 'package:sleep_journal/theme.dart';
 
 /// One device/theme combination exercised by the audit.
@@ -43,6 +51,28 @@ class _AuditVariant {
   final ThemeData theme;
 }
 
+/// One primary destination of [MainScreen]'s bottom navigation bar.
+class _Destination {
+  const _Destination({
+    required this.label,
+    required this.slug,
+    required this.index,
+    required this.screen,
+  });
+
+  /// Label shown in the bottom navigation bar.
+  final String label;
+
+  /// Golden file suffix, for example `history`.
+  final String slug;
+
+  /// Position in the bottom navigation bar.
+  final int index;
+
+  /// Screen mounted for this destination inside the [IndexedStack].
+  final Type screen;
+}
+
 final List<_AuditVariant> _variants = <_AuditVariant>[
   _AuditVariant(
     name: 'phone_light',
@@ -64,6 +94,29 @@ final List<_AuditVariant> _variants = <_AuditVariant>[
   ),
 ];
 
+/// Every destination in [MainScreen], in bottom-navigation order.
+const List<_Destination> _destinations = <_Destination>[
+  _Destination(
+    label: 'Dashboard',
+    slug: 'dashboard',
+    index: 0,
+    screen: DashboardScreen,
+  ),
+  _Destination(label: 'Log', slug: 'log', index: 1, screen: LogScreen),
+  _Destination(
+    label: 'History',
+    slug: 'history',
+    index: 2,
+    screen: HistoryScreen,
+  ),
+  _Destination(
+    label: 'Settings',
+    slug: 'settings',
+    index: 3,
+    screen: SettingsScreen,
+  ),
+];
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   // Themes below are built at first access, outside any test's zone; without
@@ -80,32 +133,78 @@ void main() {
   });
 
   for (final _AuditVariant variant in _variants) {
+    testWidgets('${variant.name}: dashboard passes the audit', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle semantics = tester.ensureSemantics();
+
+      try {
+        final List<FlutterErrorDetails> errors = await _pumpMainScreen(
+          tester,
+          variant,
+        );
+
+        _expectOverflows(errors, variant, 'dashboard');
+        await _expectGuidelines(tester, variant, 'dashboard');
+
+        await _captureGolden(tester, '${variant.name}_dashboard');
+      } finally {
+        semantics.dispose();
+      }
+    });
+
     testWidgets(
-      '${variant.name}: main screen has no overflow, reachable targets, '
-      'and readable text',
+      '${variant.name}: every primary tab passes the audit when tapped',
       (WidgetTester tester) async {
         final SemanticsHandle semantics = tester.ensureSemantics();
 
         try {
-          final List<FlutterErrorDetails> errors = await _pumpMainScreen(
+          final List<FlutterErrorDetails> initialErrors = await _pumpMainScreen(
             tester,
             variant,
           );
+          _expectOverflows(initialErrors, variant, 'dashboard');
 
-          _expectOverflows(errors, variant.name);
-          await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+          // Tap every destination, then come back to Dashboard: forward
+          // navigation must hold on every tab and the app must return home.
+          final List<_Destination> taps = <_Destination>[
+            ..._destinations.skip(1),
+            _destinations.first,
+          ];
 
-          // Rendered text-contrast assertions are intentionally absent: the
-          // `textContrastGuideline` histogram is flaky on Linux, where FreeType
-          // antialiasing of 12sp text reads as low contrast. Token contrast is
-          // verified deterministically in test/theme_contrast_test.dart.
-
-          // Opt-in golden capture: local only, never required in CI.
-          if (autoUpdateGoldenFiles) {
-            await expectLater(
-              find.byType(MaterialApp),
-              matchesGoldenFile('goldens/${variant.name}.png'),
+          for (final _Destination destination in taps) {
+            final List<FlutterErrorDetails> errors = await _collectLayoutErrors(
+              () async {
+                await tester.tap(_navTab(destination.label));
+                await tester.pumpAndSettle();
+              },
             );
+
+            final BottomNavigationBar navigation = tester.widget(
+              find.byType(BottomNavigationBar),
+            );
+            expect(
+              navigation.currentIndex,
+              destination.index,
+              reason:
+                  'Tapping "${destination.label}" should select the '
+                  '"${destination.label}" destination.',
+            );
+
+            // The app has no dialogs, sheets or snack bars today; a tab tap
+            // must not introduce one.
+            _expectNoModalRoute(tester, destination.slug);
+
+            _expectOverflows(errors, variant, destination.slug);
+            await _expectGuidelines(tester, variant, destination.slug);
+
+            // Dashboard was already captured by the test above.
+            if (destination.slug != 'dashboard') {
+              await _captureGolden(
+                tester,
+                '${variant.name}_${destination.slug}',
+              );
+            }
           }
         } finally {
           semantics.dispose();
@@ -114,49 +213,190 @@ void main() {
     );
 
     testWidgets(
-      '${variant.name}: tapping a secondary navigation tab keeps the audit green',
+      '${variant.name}: every visible action opens no dialog or sheet',
       (WidgetTester tester) async {
         final SemanticsHandle semantics = tester.ensureSemantics();
 
         try {
           await _pumpMainScreen(tester, variant);
 
-          // No dialog exists in this app today; the tap audit still has to hold.
-          final List<FlutterErrorDetails> errors = await _collectLayoutErrors(
-            () async {
-              await tester.tap(find.text('History'));
-              await tester.pumpAndSettle();
-            },
+          // AppBar action (calendar).
+          await _tapAndAudit(
+            tester,
+            variant,
+            find.byTooltip('Calendar'),
+            'app bar Calendar',
           );
 
-          final BottomNavigationBar navigation = tester.widget(
-            find.byType(BottomNavigationBar),
+          // Dashboard: "add correlation" action.
+          await _tapAndAudit(
+            tester,
+            variant,
+            find.byTooltip('Add correlation'),
+            'dashboard Add correlation',
           );
-          expect(
-            navigation.currentIndex,
-            2,
-            reason: 'Tapping "History" should select the History destination',
+
+          // Settings: connect rows and the plain Log Out button.
+          await _tapAndAudit(
+            tester,
+            variant,
+            _navTab('Settings'),
+            'settings tab',
           );
-
-          _expectOverflows(errors, variant.name);
-          await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
-
-          // See the note above: token contrast is verified deterministically in
-          // test/theme_contrast_test.dart rather than from the raster.
-
-          // Opt-in golden capture: local only, never required in CI.
-          if (autoUpdateGoldenFiles) {
-            await expectLater(
-              find.byType(MaterialApp),
-              matchesGoldenFile('goldens/${variant.name}_interactive.png'),
-            );
-          }
+          await _tapAndAudit(
+            tester,
+            variant,
+            find.text('Log Out'),
+            'settings Log Out',
+          );
         } finally {
           semantics.dispose();
         }
       },
     );
   }
+}
+
+/// Matches the [Text] label of one bottom-navigation destination.
+Finder _navTab(String label) {
+  return find.descendant(
+    of: find.byType(BottomNavigationBar),
+    matching: find.text(label),
+  );
+}
+
+/// Fails with the offending diagnostics when any layout error is an overflow.
+void _expectOverflows(
+  List<FlutterErrorDetails> errors,
+  _AuditVariant variant,
+  String state,
+) {
+  final List<FlutterErrorDetails> overflows = errors
+      .where(
+        (FlutterErrorDetails details) =>
+            details.exceptionAsString().contains('overflowed'),
+      )
+      .toList();
+
+  expect(
+    overflows,
+    isEmpty,
+    reason:
+        'Expected zero RenderFlex overflows on "${variant.name}" / "$state" '
+        '(${variant.size.width.toInt()}x${variant.size.height.toInt()} at '
+        '${variant.textScale}x text) but found ${overflows.length}:\n'
+        '${overflows.map((FlutterErrorDetails d) => d.exceptionAsString()).join('\n\n')}',
+  );
+}
+
+/// Whether the rendered-contrast guideline can be trusted on this host.
+///
+/// [textContrastGuideline] samples antialiased glyph pixels. FreeType on Linux
+/// antialiases 12sp text differently from CoreText on macOS, which makes the
+/// histogram misread compliant colours as low contrast. Token-level contrast is
+/// proven arithmetically in test/theme_contrast_test.dart on every host, so the
+/// raster check is skipped on Linux to keep CI deterministic; it still runs on
+/// macOS and Windows, where it catches real regressions (for example text
+/// painted over a glow or a mismatched fill).
+///
+/// Set `SKIP_TEXT_CONTRAST=1` to disable it on any host.
+bool get _runsRenderedContrastGuideline {
+  if (Platform.environment['SKIP_TEXT_CONTRAST'] == '1') {
+    return false;
+  }
+  return !Platform.isLinux;
+}
+
+/// Asserts the tap-target and (where supported) rendered-contrast guidelines.
+Future<void> _expectGuidelines(
+  WidgetTester tester,
+  _AuditVariant variant,
+  String state,
+) async {
+  await expectLater(
+    tester,
+    meetsGuideline(androidTapTargetGuideline),
+    reason:
+        'Expected every tap target on "${variant.name}" / "$state" to be at '
+        'least 48x48dp.',
+  );
+
+  if (_runsRenderedContrastGuideline) {
+    await expectLater(
+      tester,
+      meetsGuideline(textContrastGuideline),
+      reason:
+          'Expected rendered text on "${variant.name}" / "$state" to meet '
+          'WCAG AA.',
+    );
+  }
+}
+
+/// Taps [finder], then re-runs the audit for [state].
+Future<void> _tapAndAudit(
+  WidgetTester tester,
+  _AuditVariant variant,
+  Finder finder,
+  String state,
+) async {
+  final List<FlutterErrorDetails> errors = await _collectLayoutErrors(() async {
+    await tester.ensureVisible(finder);
+    await tester.pumpAndSettle();
+    await tester.tap(finder);
+    await tester.pumpAndSettle();
+  });
+
+  _expectNoModalRoute(tester, state);
+  _expectOverflows(errors, variant, state);
+  await _expectGuidelines(tester, variant, state);
+}
+
+/// Asserts that no dialog, sheet or snack bar is on screen.
+///
+/// Every action in this app is currently inert, so the audit pins that
+/// behaviour: the day one of them opens a modal, this test points at the
+/// offending interaction and the flow below has to be extended to cover it.
+///
+/// The `ModalBarrier` type is deliberately not asserted on: the page route
+/// itself owns one. A pushed dialog or sheet is detected through
+/// [NavigatorState.canPop] instead, since both push a route above `home`.
+void _expectNoModalRoute(WidgetTester tester, String state) {
+  expect(
+    find.byType(Dialog),
+    findsNothing,
+    reason: 'Tapping "$state" unexpectedly opened a Dialog.',
+  );
+  expect(
+    find.byType(AlertDialog),
+    findsNothing,
+    reason: 'Tapping "$state" unexpectedly opened an AlertDialog.',
+  );
+  expect(
+    find.byType(BottomSheet),
+    findsNothing,
+    reason: 'Tapping "$state" unexpectedly opened a bottom sheet.',
+  );
+  expect(
+    find.byType(SnackBar),
+    findsNothing,
+    reason: 'Tapping "$state" unexpectedly showed a snack bar.',
+  );
+  expect(
+    tester.state<NavigatorState>(find.byType(Navigator)).canPop(),
+    isFalse,
+    reason: 'Tapping "$state" unexpectedly pushed a modal route.',
+  );
+}
+
+/// Writes a golden only when the run opted in with `--update-goldens`.
+Future<void> _captureGolden(WidgetTester tester, String name) async {
+  if (!autoUpdateGoldenFiles) {
+    return;
+  }
+  await expectLater(
+    find.byType(MaterialApp),
+    matchesGoldenFile('goldens/$name.png'),
+  );
 }
 
 /// Loads metrics-compatible stand-ins for the app's Google Fonts.
@@ -301,23 +541,4 @@ Future<List<FlutterErrorDetails>> _collectLayoutErrors(
     FlutterError.onError = previousOnError;
   }
   return errors;
-}
-
-/// Fails with the offending diagnostics when any layout error is an overflow.
-void _expectOverflows(List<FlutterErrorDetails> errors, String variantName) {
-  final List<FlutterErrorDetails> overflows = errors
-      .where(
-        (FlutterErrorDetails details) =>
-            details.exceptionAsString().contains('overflowed'),
-      )
-      .toList();
-
-  expect(
-    overflows,
-    isEmpty,
-    reason:
-        'Expected zero RenderFlex overflows on "$variantName" but found '
-        '${overflows.length}:\n'
-        '${overflows.map((FlutterErrorDetails d) => d.exceptionAsString()).join('\n\n')}',
-  );
 }

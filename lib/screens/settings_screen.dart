@@ -71,9 +71,14 @@ class SettingsScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(title, style: Theme.of(context).textTheme.bodyMedium),
-              const Spacer(),
+              Expanded(
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
               if (status != null) ...[
+                const SizedBox(width: 12),
                 Text(
                   status,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
