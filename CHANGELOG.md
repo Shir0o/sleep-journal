@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/Shir0o/sleep-journal/compare/v0.1.3...v0.1.4) (2026-11-19)
+
+
+### Bug Fixes
+
+* **ui:** prevent settings row overflow at large text scale ([#21](https://github.com/Shir0o/sleep-journal/issues/21)) ([e38634f](https://github.com/Shir0o/sleep-journal/commit/e38634f4725c18c24e7592fa3299e189e2dc2b70))
+
 ## [0.1.3](https://github.com/Shir0o/sleep-journal/compare/v0.1.2...v0.1.3) (2026-11-12)
 
 
