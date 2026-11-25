@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/Shir0o/sleep-journal/compare/v0.1.4...v0.2.0) (2026-11-25)
+
+
+### Features
+
+* **ui:** replace Log placeholder with interactive evening habit log ([#25](https://github.com/Shir0o/sleep-journal/issues/25)) ([0c87020](https://github.com/Shir0o/sleep-journal/commit/0c870209a2960c6cbe590e983aad5800a7eaa40c))
+
 ## [0.1.4](https://github.com/Shir0o/sleep-journal/compare/v0.1.3...v0.1.4) (2026-11-19)
 
 
