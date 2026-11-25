@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'theme.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/history_screen.dart';
+import 'screens/log_screen.dart';
 import 'screens/settings_screen.dart';
 
 void main() {
@@ -102,14 +103,5 @@ class _MainScreenState extends State<MainScreen> {
         ],
       ),
     );
-  }
-}
-
-class LogScreen extends StatelessWidget {
-  const LogScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Log Screen (Coming Soon)'));
   }
 }

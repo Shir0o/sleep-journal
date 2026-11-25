@@ -27,6 +27,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sleep_journal/main.dart';
 import 'package:sleep_journal/screens/dashboard_screen.dart';
 import 'package:sleep_journal/screens/history_screen.dart';
+import 'package:sleep_journal/screens/log_screen.dart';
 import 'package:sleep_journal/screens/settings_screen.dart';
 import 'package:sleep_journal/theme.dart';
 
@@ -248,6 +249,35 @@ void main() {
             variant,
             find.text('Log Out'),
             'settings Log Out',
+          );
+
+          // Log: an interactive habit row and the inline save action. The
+          // save must confirm in place, with no dialog, sheet or snack bar.
+          await _tapAndAudit(tester, variant, _navTab('Log'), 'log tab');
+          await _tapAndAudit(
+            tester,
+            variant,
+            find.descendant(
+              of: find.byType(LogScreen),
+              matching: find.text('Screen Time'),
+            ),
+            'log habit row',
+          );
+          await _tapAndAudit(
+            tester,
+            variant,
+            find.text('Save Evening Log'),
+            'log save',
+          );
+          expect(
+            find.text('Saved for tonight'),
+            findsOneWidget,
+            reason: 'Saving on the Log tab should confirm inline.',
+          );
+          expect(
+            find.text('Update Evening Log'),
+            findsOneWidget,
+            reason: 'The save action should switch to its update label.',
           );
         } finally {
           semantics.dispose();
